@@ -1,12 +1,18 @@
-document.getElementById("year").textContent = new Date().getFullYear();
 
-const languageButton = document.getElementById("languageBtn");
+const languageBtn = document.getElementById("languageBtn");
 let currentLanguage = "en";
-languageButton.addEventListener("click", () => {
+
+languageBtn.addEventListener("click", function () {
   currentLanguage = currentLanguage === "en" ? "or" : "en";
-  document.documentElement.lang = currentLanguage === "or" ? "or" : "en";
-  document.querySelectorAll("[data-en][data-or]").forEach((element) => {
-    element.textContent = element.dataset[currentLanguage];
+
+  document.querySelectorAll("[data-en][data-or]").forEach(function (element) {
+    element.textContent = element.getAttribute(
+      currentLanguage === "en" ? "data-en" : "data-or"
+    );
   });
-  languageButton.textContent = currentLanguage === "en" ? "ଓଡ଼ିଆ" : "English";
+
+  languageBtn.textContent = currentLanguage === "en" ? "ଓଡ଼ିଆ" : "English";
+  document.documentElement.lang = currentLanguage === "en" ? "en" : "or";
 });
+
+document.getElementById("year").textContent = new Date().getFullYear();
