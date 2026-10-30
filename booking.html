@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Book a Service | SP POWERFIX</title>
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -32,10 +32,13 @@ button{
   background:#d4af37;color:#111;border:0;
   border-radius:6px;font-size:16px;font-weight:bold
 }
+button:disabled{opacity:.6}
 .back{display:block;text-align:center;color:#d4af37;margin-top:20px;text-decoration:none}
 .note{font-size:12px;color:#aaa;text-align:center;margin-top:15px}
+#message{text-align:center;font-size:14px;margin-top:15px;line-height:1.5}
 </style>
 </head>
+
 <body>
 <div class="container">
 
@@ -81,21 +84,96 @@ button{
       <label>Describe Your Electrical Problem *</label>
       <textarea id="details" placeholder="Explain what electrical work you need" required></textarea>
 
-      <button type="submit">SUBMIT BOOKING REQUEST</button>
+      <button type="submit" id="submitBtn">SUBMIT BOOKING REQUEST</button>
     </form>
 
+    <div id="message"></div>
+
     <p class="note">
-      Your booking request will be connected to the secure booking system during Firebase setup.
+      Your booking request will be securely saved after submission.
     </p>
   </div>
 
   <a class="back" href="customer-dashboard.html">← Back to Dashboard</a>
 </div>
 
-<script>
-document.getElementById("bookingForm").addEventListener("submit",function(e){
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+import {
+  addDoc, collection, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+const form = document.getElementById("bookingForm");
+const message = document.getElementById("message");
+const button = document.getElementById("submitBtn");
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = user;
+  document.getElementById("email").value = user.email || "";
+});
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  alert("Booking form design is ready. Firebase connection is required before bookings can be submitted.");
+
+  if (!currentUser) {
+    message.style.color = "#ff6666";
+    message.textContent = "Please login before booking.";
+    return;
+  }
+
+  const bookingDate = document.getElementById("eventDate").value;
+
+  if (bookingDate < new Date().toLocaleDateString("en-CA")) {
+    message.style.color = "#ff6666";
+    message.textContent = "Please select today or a future date.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "SAVING BOOKING...";
+  message.style.color = "#d4af37";
+  message.textContent = "Please wait. Saving your booking...";
+
+  try {
+    await addDoc(collection(db, "bookings"), {
+      uid: currentUser.uid,
+      customerName: document.getElementById("customerName").value.trim(),
+      mobile: document.getElementById("mobile").value.trim(),
+      email: document.getElementById("email").value.trim() || currentUser.email || "",
+      service: document.getElementById("service").value,
+      eventDate: bookingDate,
+      eventTime: document.getElementById("eventTime").value,
+      address: document.getElementById("address").value.trim(),
+      details: document.getElementById("details").value.trim(),
+      status: "Pending",
+      createdAt: serverTimestamp()
+    });
+
+    message.style.color = "#7CFC98";
+    message.textContent = "Booking submitted successfully! Your status is Pending.";
+
+    form.reset();
+    document.getElementById("email").value = currentUser.email || "";
+
+  } catch (error) {
+    console.error("Booking error:", error);
+    message.style.color = "#ff6666";
+    message.textContent = "Booking failed: " + error.message;
+  }
+
+  button.disabled = false;
+  button.textContent = "SUBMIT BOOKING REQUEST";
 });
 </script>
 
