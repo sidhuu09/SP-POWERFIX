@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard | SP POWERFIX</title>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0b0b0b;color:white;font-family:Arial,sans-serif}
@@ -35,19 +35,21 @@ h2{color:#d4af37}
  border-radius:12px;padding:20px;margin-top:20px
 }
 .panel h3{color:#d4af37}
-table{width:100%;border-collapse:collapse;min-width:650px}
-th,td{padding:13px;border-bottom:1px solid #383838;text-align:left;font-size:14px}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:13px;border-bottom:1px solid #383838;text-align:left;font-size:14px;vertical-align:top}
 th{color:#d4af37}
 .table-wrap{overflow-x:auto}
 select{
  padding:9px;background:#0b0b0b;color:white;
- border:1px solid #d4af37;border-radius:5px
+ border:1px solid #d4af37;border-radius:5px;
+ max-width:140px
 }
 button{
  background:#d4af37;color:#111;border:0;
  padding:10px 15px;border-radius:5px;
  font-weight:bold;cursor:pointer
 }
+button:disabled{opacity:.5}
 .menu{
  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
  gap:12px;margin-top:20px
@@ -58,8 +60,12 @@ button{
  text-decoration:none;text-align:center
 }
 .note{color:#aaa;font-size:12px;line-height:1.6}
+#message{color:#d4af37;margin-top:15px;font-size:14px;line-height:1.5}
+.action-cell{min-width:190px}
+.action-cell button{margin-top:8px}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -67,23 +73,26 @@ button{
   <div class="logo">SP <span>POWERFIX</span></div>
   <small>ADMIN CONTROL PANEL</small>
  </div>
- <a href="login.html" class="logout">LOGOUT</a>
+ <button id="logoutBtn" class="logout">LOGOUT</button>
 </header>
 
 <main>
  <h2>Admin Dashboard</h2>
  <p class="subtitle">Welcome to SP POWERFIX Management System.</p>
 
+ <div id="message">Checking Admin Login...</div>
+
  <div class="stats">
-  <div class="stat"><p>Total Bookings</p><h3>—</h3></div>
-  <div class="stat"><p>Pending</p><h3>—</h3></div>
-  <div class="stat"><p>Confirmed</p><h3>—</h3></div>
-  <div class="stat"><p>Completed</p><h3>—</h3></div>
+  <div class="stat"><p>Total Bookings</p><h3 id="totalCount">0</h3></div>
+  <div class="stat"><p>Pending</p><h3 id="pendingCount">0</h3></div>
+  <div class="stat"><p>Confirmed</p><h3 id="confirmedCount">0</h3></div>
+  <div class="stat"><p>Completed</p><h3 id="completedCount">0</h3></div>
  </div>
 
  <div class="panel">
   <h3>All Customer Bookings</h3>
-  <p class="note">Customer booking records will appear here after Firebase connection.</p>
+  <p class="note">View customer details and update booking status.</p>
+
   <div class="table-wrap">
    <table>
     <thead>
@@ -92,16 +101,13 @@ button{
       <th>Customer</th>
       <th>Mobile</th>
       <th>Service</th>
-      <th>Date</th>
-      <th>Status</th>
+      <th>Date & Time</th>
+      <th>Address</th>
+      <th>Status / Update</th>
      </tr>
     </thead>
-    <tbody>
-     <tr>
-      <td colspan="6" style="text-align:center;color:#aaa">
-       No booking data connected yet.
-      </td>
-     </tr>
+    <tbody id="bookingRows">
+     <tr><td colspan="7" style="text-align:center;color:#aaa">Loading...</td></tr>
     </tbody>
    </table>
   </div>
@@ -119,14 +125,171 @@ button{
  </div>
 
  <div class="panel">
-  <h3>Important Security Note</h3>
+  <h3>Admin Security</h3>
   <p class="note">
-   This is the dashboard design only. Secure Admin Authentication,
-   booking data, status updates and payment records must be connected
-   through Firebase with server-side access rules before real use.
+   Only authenticated users with the Admin role can access booking records
+   and update booking status. Firebase Security Rules protect the database.
   </p>
  </div>
 </main>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+import {
+  doc, getDoc, collection, getDocs,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+const message = document.getElementById("message");
+const rows = document.getElementById("bookingRows");
+const logoutBtn = document.getElementById("logoutBtn");
+
+let adminVerified = false;
+let loadingBookings = false;
+
+function safe(value) {
+  return String(value ?? "—").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  })[c]);
+}
+
+function updateCounts(bookings) {
+  document.getElementById("totalCount").textContent = bookings.length;
+  document.getElementById("pendingCount").textContent =
+    bookings.filter(b => b.status === "Pending").length;
+  document.getElementById("confirmedCount").textContent =
+    bookings.filter(b => b.status === "Confirmed").length;
+  document.getElementById("completedCount").textContent =
+    bookings.filter(b => b.status === "Completed").length;
+}
+
+async function loadBookings() {
+  if (!adminVerified || loadingBookings) return;
+
+  loadingBookings = true;
+  message.textContent = "Loading customer bookings...";
+
+  try {
+    const snapshot = await getDocs(collection(db, "bookings"));
+
+    const bookings = snapshot.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }));
+
+    bookings.sort((a,b) =>
+      (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+    );
+
+    updateCounts(bookings);
+
+    if (bookings.length === 0) {
+      rows.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa">No bookings found.</td></tr>';
+      message.textContent = "No customer bookings available.";
+      return;
+    }
+
+    rows.innerHTML = bookings.map(b => `
+      <tr>
+        <td>${safe(b.id)}</td>
+        <td>${safe(b.customerName)}</td>
+        <td>${safe(b.mobile)}</td>
+        <td>${safe(b.service)}</td>
+        <td>${safe(b.eventDate)}<br>${safe(b.eventTime)}</td>
+        <td>${safe(b.address)}</td>
+        <td class="action-cell">
+          <strong style="color:#d4af37">${safe(b.status || "Pending")}</strong>
+          <br>
+          <select id="status-${safe(b.id)}">
+            <option value="Pending" ${b.status==="Pending"?"selected":""}>Pending</option>
+            <option value="Confirmed" ${b.status==="Confirmed"?"selected":""}>Confirmed</option>
+            <option value="Completed" ${b.status==="Completed"?"selected":""}>Completed</option>
+            <option value="Cancelled" ${b.status==="Cancelled"?"selected":""}>Cancelled</option>
+          </select>
+          <br>
+          <button class="updateBtn" data-id="${safe(b.id)}">UPDATE STATUS</button>
+        </td>
+      </tr>
+    `).join("");
+
+    message.textContent = "All customer bookings loaded successfully.";
+
+    document.querySelectorAll(".updateBtn").forEach(btn => {
+      btn.addEventListener("click", () => updateStatus(btn.dataset.id, btn));
+    });
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Could not load bookings: " + error.message;
+  } finally {
+    loadingBookings = false;
+  }
+}
+
+async function updateStatus(id, button) {
+  if (!adminVerified) return;
+
+  const select = document.getElementById("status-" + id);
+  const newStatus = select.value;
+  const allowed = ["Pending", "Confirmed", "Completed", "Cancelled"];
+
+  if (!allowed.includes(newStatus)) return;
+
+  button.disabled = true;
+  button.textContent = "UPDATING...";
+
+  try {
+    await updateDoc(doc(db, "bookings", id), {
+      status: newStatus
+    });
+
+    message.textContent = "Booking status updated to " + newStatus + ".";
+    await loadBookings();
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Status update failed: " + error.message;
+    button.disabled = false;
+    button.textContent = "UPDATE STATUS";
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+
+    if (!userDoc.exists() || userDoc.data().role !== "admin") {
+      message.textContent = "Access denied. Admin account required.";
+      await signOut(auth);
+      window.location.replace("login.html");
+      return;
+    }
+
+    adminVerified = true;
+    await loadBookings();
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Admin verification failed: " + error.message;
+  }
+});
+
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.replace("login.html");
+});
+</script>
 
 </body>
 </html>
