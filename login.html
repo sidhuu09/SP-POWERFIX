@@ -8,57 +8,33 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  background:#0b0b0b;
-  color:white;
-  font-family:Arial,sans-serif;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
+  background:#0b0b0b;color:white;font-family:Arial,sans-serif;
+  min-height:100vh;display:flex;justify-content:center;
+  align-items:center;padding:20px;
 }
 .container{width:100%;max-width:440px;text-align:center}
 .logo{font-size:30px;font-weight:bold;color:#d4af37}
 .logo span{color:white}
 .tag{color:#aaa;font-size:12px;letter-spacing:2px;margin:8px 0 25px}
 .card{
-  background:#171717;
-  border:1px solid #514322;
-  border-radius:14px;
-  padding:25px;
-  margin-bottom:18px;
+  background:#171717;border:1px solid #514322;
+  border-radius:14px;padding:25px;margin-bottom:18px;
 }
 h2{color:#d4af37;margin-bottom:18px}
 input{
-  width:100%;
-  padding:13px;
-  margin:8px 0;
-  border-radius:6px;
-  border:1px solid #555;
-  background:#0b0b0b;
-  color:white;
-  font-size:15px;
+  width:100%;padding:13px;margin:8px 0;border-radius:6px;
+  border:1px solid #555;background:#0b0b0b;color:white;font-size:15px;
 }
 button{
-  width:100%;
-  padding:13px;
-  margin-top:12px;
-  background:#d4af37;
-  border:0;
-  border-radius:6px;
-  color:#111;
-  font-size:15px;
-  font-weight:bold;
-  cursor:pointer;
+  width:100%;padding:13px;margin-top:12px;
+  background:#d4af37;border:0;border-radius:6px;
+  color:#111;font-size:15px;font-weight:bold;cursor:pointer;
 }
-.register{
-  display:block;
-  color:#d4af37;
-  margin-top:16px;
-  text-decoration:none;
-}
+button:disabled{opacity:.6}
+.register{display:block;color:#d4af37;margin-top:16px;text-decoration:none}
 .back{color:#aaa;text-decoration:none}
 .note{font-size:12px;color:#aaa;margin-top:15px}
+.message{font-size:13px;margin-top:12px;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -69,25 +45,108 @@ button{
 
   <div class="card">
     <h2>Customer Login</h2>
-    <form onsubmit="event.preventDefault(); alert('Customer login will be activated after Firebase setup.');">
-      <input type="email" placeholder="Enter Email" required>
-      <input type="password" placeholder="Enter Password" required>
+    <form id="customerForm">
+      <input id="customerEmail" type="email" placeholder="Enter Email" required>
+      <input id="customerPassword" type="password" placeholder="Enter Password" required>
       <button type="submit">CUSTOMER LOGIN</button>
+      <p id="customerMessage" class="message"></p>
     </form>
     <a class="register" href="register.html">Create New Customer Account</a>
   </div>
 
   <div class="card">
     <h2>Admin Login</h2>
-    <form onsubmit="event.preventDefault(); alert('Secure Admin Login will be activated after Firebase setup.');">
-      <input type="email" placeholder="Admin Email" required>
-      <input type="password" placeholder="Admin Password" required>
+    <form id="adminForm">
+      <input id="adminEmail" type="email" placeholder="Admin Email" required>
+      <input id="adminPassword" type="password" placeholder="Admin Password" required>
       <button type="submit">ADMIN LOGIN</button>
+      <p id="adminMessage" class="message"></p>
     </form>
     <p class="note">Authorized Admin Only</p>
   </div>
 
   <a class="back" href="index.html">← Back to Home</a>
 </div>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+import {
+  signInWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {
+  doc, getDoc
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+async function login(email, password, expectedRole, messageId, button) {
+  const message = document.getElementById(messageId);
+  button.disabled = true;
+  message.style.color = "#d4af37";
+  message.textContent = "Please wait...";
+
+  let user = null;
+
+  try {
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    user = result.user;
+
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+
+    if (!userDoc.exists() || userDoc.data().role !== expectedRole) {
+      await signOut(auth);
+      message.style.color = "#ff7777";
+      message.textContent = "Access denied. Your account does not have this role.";
+      return;
+    }
+
+    message.style.color = "#7CFC98";
+    message.textContent = "Login successful!";
+
+    window.location.href = expectedRole === "admin"
+      ? "admin-dashboard.html"
+      : "customer-dashboard.html";
+
+  } catch (error) {
+    if (user) {
+      try { await signOut(auth); } catch (_) {}
+    }
+
+    message.style.color = "#ff7777";
+
+    if (error.code === "auth/invalid-credential") {
+      message.textContent = "Incorrect email or password.";
+    } else if (error.code === "auth/too-many-requests") {
+      message.textContent = "Too many attempts. Try again later.";
+    } else {
+      message.textContent = "Login failed: " + error.message;
+    }
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.getElementById("customerForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  login(
+    document.getElementById("customerEmail").value.trim(),
+    document.getElementById("customerPassword").value,
+    "customer",
+    "customerMessage",
+    this.querySelector("button")
+  );
+});
+
+document.getElementById("adminForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+  login(
+    document.getElementById("adminEmail").value.trim(),
+    document.getElementById("adminPassword").value,
+    "admin",
+    "adminMessage",
+    this.querySelector("button")
+  );
+});
+</script>
+
 </body>
 </html>
