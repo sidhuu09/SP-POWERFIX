@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SP POWERFIX | Register</title>
+
 <style>
 *{box-sizing:border-box}
 body{
@@ -31,26 +31,113 @@ button{
   background:#d4af37;color:#111;border:0;
   border-radius:6px;font-weight:bold;font-size:15px;
 }
+button:disabled{opacity:.6}
 a{display:block;color:#d4af37;margin-top:18px;text-decoration:none}
+#message{margin-top:15px;font-size:14px;line-height:1.5}
 </style>
 </head>
+
 <body>
 <div class="card">
   <div class="logo">SP <span>POWERFIX</span></div>
   <h2>Create Account</h2>
   <p>Register for Electrical Service Booking</p>
 
-  <form onsubmit="event.preventDefault();alert('Account registration will be activated after Firebase setup.');">
-    <input type="text" placeholder="Full Name" required>
-    <input type="tel" placeholder="Mobile Number" pattern="[0-9]{10}" required>
-    <input type="email" placeholder="Email Address" required>
-    <input type="password" placeholder="Create Password" minlength="6" required>
-    <input type="password" placeholder="Confirm Password" minlength="6" required>
-    <button type="submit">CREATE ACCOUNT</button>
+  <form id="registerForm">
+    <input id="fullName" type="text" placeholder="Full Name" required>
+    <input id="mobile" type="tel" placeholder="Mobile Number"
+           pattern="[0-9]{10}" maxlength="10" required>
+    <input id="email" type="email" placeholder="Email Address" required>
+    <input id="password" type="password" placeholder="Create Password"
+           minlength="6" required>
+    <input id="confirmPassword" type="password"
+           placeholder="Confirm Password" minlength="6" required>
+    <button id="registerBtn" type="submit">CREATE ACCOUNT</button>
   </form>
+
+  <div id="message"></div>
 
   <a href="login.html">Already have an account? Login</a>
   <a href="index.html">← Back to Home</a>
 </div>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+import {
+  doc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+const form = document.getElementById("registerForm");
+const message = document.getElementById("message");
+const button = document.getElementById("registerBtn");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("fullName").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if (password !== confirmPassword) {
+    message.style.color = "#ff6666";
+    message.textContent = "Passwords do not match.";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "CREATING ACCOUNT...";
+  message.style.color = "#d4af37";
+  message.textContent = "Please wait...";
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth, email, password
+    );
+
+    const user = userCredential.user;
+
+    await setDoc(doc(db, "users", user.uid), {
+      name: name,
+      mobile: mobile,
+      email: email,
+      role: "customer",
+      createdAt: serverTimestamp()
+    });
+
+    message.style.color = "#7CFC98";
+    message.textContent = "Account created successfully! Redirecting...";
+
+    window.location.href = "customer-dashboard.html";
+
+  } catch (error) {
+    console.error(error);
+
+    message.style.color = "#ff6666";
+
+    if (error.code === "auth/email-already-in-use") {
+      message.textContent = "This email is already registered. Please Login.";
+    } else if (error.code === "auth/weak-password") {
+      message.textContent = "Password must be at least 6 characters.";
+    } else if (error.code === "auth/invalid-email") {
+      message.textContent = "Please enter a valid email address.";
+    } else if (error.code === "permission-denied") {
+      message.textContent = "Account created, but profile save failed. Please contact Admin.";
+    } else {
+      message.textContent = "Registration failed: " + error.message;
+    }
+
+    button.disabled = false;
+    button.textContent = "CREATE ACCOUNT";
+  }
+});
+</script>
+
 </body>
 </html>
