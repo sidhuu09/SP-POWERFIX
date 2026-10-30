@@ -1,44 +1,205 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090b0e">
-  <meta name="description" content="SP POWERFIX electrical services in Dakuluguda. Call or WhatsApp 8144722094.">
-  <title>SP POWERFIX | Electrical Services</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SP POWERFIX | MR SIDHU</title>
+<style>
+:root {
+  --gold:#d4af37;
+  --black:#0b0b0b;
+  --card:#171717;
+  --white:#fff;
+}
+* {box-sizing:border-box;margin:0;padding:0}
+body {
+  background:var(--black);
+  color:var(--white);
+  font-family:Arial,sans-serif;
+  line-height:1.6;
+}
+header {
+  padding:16px 6%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid #383020;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.logo {color:var(--gold);font-size:25px;font-weight:bold}
+.logo span {color:white}
+.electrician {font-size:12px;color:#ccc}
+nav {display:flex;gap:16px;flex-wrap:wrap}
+nav a {color:white;text-decoration:none;font-size:14px}
+nav a:hover {color:var(--gold)}
+.login {
+  background:var(--gold);
+  color:#111;
+  padding:10px 16px;
+  border-radius:6px;
+  text-decoration:none;
+  font-weight:bold;
+}
+.hero {
+  min-height:480px;
+  padding:65px 7%;
+  display:flex;
+  align-items:center;
+  background:
+  linear-gradient(90deg,#090909 15%,rgba(9,9,9,.75) 65%,rgba(9,9,9,.4)),
+  url("https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1400")
+  center/cover;
+}
+.hero-content {max-width:600px}
+.tag {color:var(--gold);letter-spacing:3px;font-size:13px}
+h1 {font-size:clamp(36px,7vw,62px);line-height:1.1;margin:16px 0}
+h1 span {color:var(--gold)}
+.hero p {color:#ddd;margin-bottom:25px}
+.btn {
+  display:inline-block;
+  padding:13px 20px;
+  border-radius:6px;
+  text-decoration:none;
+  font-weight:bold;
+  margin:5px 5px 5px 0;
+}
+.gold {background:var(--gold);color:#111}
+.outline {border:1px solid var(--gold);color:var(--gold)}
+section {padding:55px 7%}
+.section-title {
+  text-align:center;
+  font-size:30px;
+  margin-bottom:30px;
+}
+.section-title span {color:var(--gold)}
+.cards {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:18px;
+}
+.card {
+  background:var(--card);
+  padding:25px;
+  border:1px solid #393020;
+  border-radius:12px;
+}
+.card h3 {color:var(--gold);margin:10px 0}
+.card p {color:#ccc;font-size:14px}
+.symbol {font-size:32px}
+.about {background:#141414}
+.about p {max-width:750px;margin:auto;text-align:center;color:#ccc}
+.emergency {
+  text-align:center;
+  background:#251313;
+}
+.emergency h2 {color:#ff7777;margin-bottom:12px}
+.contact {text-align:center}
+footer {
+  text-align:center;
+  padding:25px;
+  background:#050505;
+  color:#aaa;
+  border-top:1px solid #393020;
+  font-size:13px;
+}
+footer span {color:var(--gold)}
+@media(max-width:600px) {
+  header {justify-content:center;text-align:center}
+  nav {justify-content:center}
+  .hero {min-height:440px;padding:45px 6%}
+}
+</style>
 </head>
 <body>
-<header class="site-header">
-  <a class="brand" href="#home" aria-label="SP POWERFIX Home"><img src="logo.png" alt="SP POWERFIX Electrical Services logo"></a>
-  
-<div class="electrician-info">
-  <span class="electrician-icon">⚡</span>
+
+<header>
   <div>
-    <small>ELECTRICIAN</small>
-    <strong>MR SIDHU</strong>
-    <span>Dakuluguda</span>
+    <div class="logo">SP <span>POWERFIX</span></div>
+    <div class="electrician">Electrician: MR SIDHU</div>
   </div>
-</div>
-  
-  <nav aria-label="Main navigation"><a href="#home">HOME</a><a href="#about">ABOUT US</a><a href="#services">SERVICES</a><a href="#contact">CONTACT</a></nav>
-  <div class="head-actions"><button id="languageBtn" class="lang" type="button">ଓଡ଼ିଆ</button><a class="quote-btn" href="https://wa.me/918144722094?text=Hello%20SP%20POWERFIX%2C%20I%20need%20an%20electrical%20service." target="_blank" rel="noopener">▣ BOOK A SERVICE</a></div>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#services">Services</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a class="login" href="login.html">Login</a>
 </header>
+
 <main>
 <section class="hero" id="home">
-  <div class="hero-copy">
-    <p class="eyebrow" data-en="RELIABLE. PROFESSIONAL. LOCAL." data-or="ଭରସାଯୋଗ୍ୟ। ପ୍ରଫେସନାଲ୍। ଆପଣଙ୍କ ନିଜ ଅଞ୍ଚଳରେ।">RELIABLE. PROFESSIONAL. LOCAL.</p>
-    <h1 data-en="Trusted electricians for your home and business." data-or="ଆପଣଙ୍କ ଘର ଓ ବ୍ୟବସାୟ ପାଇଁ ଭରସାଯୋଗ୍ୟ ଇଲେକ୍ଟ୍ରିସିଆନ୍।">Trusted electricians<br>for <span>your home</span><br>and <span>business.</span></h1>
-    <p class="intro" data-en="Electrical repairs, installations and service support for homes and businesses. Contact us for service details and booking." data-or="ଘର ଓ ବ୍ୟବସାୟ ପାଇଁ ବିଦ୍ୟୁତ୍ ମରାମତି, ଇନଷ୍ଟଲେସନ୍ ଓ ସେବା ସହାୟତା। ସେବା ଓ ବୁକିଂ ପାଇଁ ଯୋଗାଯୋଗ କରନ୍ତୁ।">Electrical repairs, installations and service support for homes and businesses. Contact us for service details and booking.</p>
-    <div class="actions"><a class="btn yellow" href="tel:+918144722094">☎ CALL NOW</a><a class="btn dark" href="https://wa.me/918144722094" target="_blank" rel="noopener">◉ WHATSAPP ↗</a></div>
-    <div class="hero-points"><span>✓ Home &amp; Business</span><span>✓ Service Enquiries</span></div>
+  <div class="hero-content">
+    <div class="tag">SAFE • RELIABLE • PROFESSIONAL</div>
+    <h1>YOUR TRUSTED<br><span>ELECTRICIAN</span></h1>
+    <p>Professional Electrical Services by MR SIDHU.
+       Safe, reliable and quality electrical solutions.</p>
+    <a class="btn gold" href="tel:8144722094">CALL NOW</a>
+    <a class="btn outline"
+       href="https://wa.me/918144722094?text=Hello%20SP%20POWERFIX%2C%20I%20need%20an%20electrician.">
+       WHATSAPP
+    </a>
+    <a class="btn outline" href="login.html">BOOK A SERVICE</a>
   </div>
-  <div class="hero-photo" role="img" aria-label="Electrician working on an electrical panel"><div class="photo-shade"></div><div class="photo-label"><b>SP POWERFIX</b><small>POWERING YOUR HOME &amp; BUSINESS</small></div></div>
 </section>
-<section class="trust-row" id="about"><article><span>⌂</span><div><b>HOME &amp; BUSINESS</b><small>Electrical service support</small></div></article><article><span>ϟ</span><div><b>REPAIR &amp; INSTALLATION</b><small>Everyday electrical needs</small></div></article><article><span>☎</span><div><b>CALL / WHATSAPP</b><small>8144722094</small></div></article><article><span>⌖</span><div><b>LOCAL SERVICE AREA</b><small>Dakuluguda</small></div></article></section>
-<section class="services" id="services"><p class="eyebrow">WHAT WE DO</p><h2>Our Electrical Services</h2><div class="service-grid"><article><span>ϟ</span><b>House Wiring</b></article><article><span>💡</span><b>Fan &amp; Light</b></article><article><span>🔌</span><b>Switch &amp; Socket</b></article><article><span>▦</span><b>MCB &amp; DB Board</b></article><article><span>▣</span><b>Inverter &amp; Motor</b></article><article><span>⚒</span><b>Electrical Fault Repair</b></article></div></section>
-<section class="contact" id="contact"><div><p class="eyebrow">NEED ELECTRICAL HELP?</p><h2>Let's get your power working.</h2><p>Call or WhatsApp SP POWERFIX for service information.</p></div><a class="btn yellow" href="tel:+918144722094">☎ CALL 8144722094</a></section>
+
+<section id="services">
+  <h2 class="section-title">OUR <span>SERVICES</span></h2>
+  <div class="cards">
+    <div class="card">
+      <div class="symbol">⚡</div>
+      <h3>Wiring Installation</h3>
+      <p>Home and commercial electrical wiring services.</p>
+    </div>
+    <div class="card">
+      <div class="symbol">💡</div>
+      <h3>Light Installation</h3>
+      <p>Light, fan and electrical fitting installation.</p>
+    </div>
+    <div class="card">
+      <div class="symbol">🔧</div>
+      <h3>Electrical Repair</h3>
+      <p>Electrical fault finding and repair services.</p>
+    </div>
+    <div class="card">
+      <div class="symbol">🏠</div>
+      <h3>Home Electrical</h3>
+      <p>Reliable electrical maintenance for your home.</p>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <h2 class="section-title">ABOUT <span>US</span></h2>
+  <p>
+    SP POWERFIX provides professional electrical services
+    with a focus on safety, reliability and customer satisfaction.
+    Service by MR SIDHU.
+  </p>
+</section>
+
+<section class="emergency">
+  <h2>24/7 EMERGENCY SERVICE</h2>
+  <p>Need urgent electrical assistance?</p>
+  <br>
+  <a class="btn gold" href="tel:8144722094">CALL 8144722094</a>
+</section>
+
+<section class="contact" id="contact">
+  <h2 class="section-title">CONTACT <span>US</span></h2>
+  <p>📍 Service Location: Dakuluguda</p>
+  <p>📞 8144722094</p>
+  <br>
+  <a class="btn gold" href="login.html">BOOK YOUR SERVICE</a>
+</section>
 </main>
-<footer><a class="footer-brand" href="#home"><img src="logo.png" alt="SP POWERFIX logo"></a><span>© <span id="year"></span> SP POWERFIX · Dakuluguda</span></footer>
-<script src="app.js"></script>
-</body></html>
+
+<footer>
+  © 2026 <span>SP POWERFIX</span> | Electrician: MR SIDHU
+  <br>SAFE • RELIABLE • PROFESSIONAL
+</footer>
+
+</body>
+                             </html>
+                             
