@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bookings | SP POWERFIX</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0b0b;color:white;font-family:Arial,sans-serif}
+header{padding:18px 6%;background:#171717;border-bottom:1px solid #514322;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.logo{font-size:23px;font-weight:bold;color:#d4af37}
+.logo span{color:white}
+main{max-width:950px;margin:auto;padding:25px 6%}
+h2{color:#d4af37}
+.info{color:#aaa;font-size:14px}
+.card{background:#171717;border:1px solid #514322;border-radius:12px;padding:20px;margin-top:20px}
+.row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid #333;padding:10px 0}
+.label{color:#aaa}
+.value{color:white;text-align:right}
+.status{color:#d4af37;font-weight:bold}
+.btn{display:inline-block;background:#d4af37;color:#111;padding:11px 15px;border-radius:6px;text-decoration:none;font-weight:bold;margin-top:18px}
+.back{color:#d4af37;text-decoration:none}
+footer{text-align:center;padding:25px;color:#aaa;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">SP <span>POWERFIX</span></div>
+  <a class="back" href="customer-dashboard.html">← Dashboard</a>
+</header>
+
+<main>
+  <h2>MY BOOKINGS</h2>
+  <p class="info">View your service booking details and progress.</p>
+
+  <div class="card">
+    <h3>Booking History</h3>
+    <p class="info">
+      Your submitted bookings will appear here after Firebase connection.
+    </p>
+
+    <div class="row">
+      <span class="label">Booking ID</span>
+      <span class="value">Will be generated</span>
+    </div>
+    <div class="row">
+      <span class="label">Service</span>
+      <span class="value">No booking loaded</span>
+    </div>
+    <div class="row">
+      <span class="label">Booking Date</span>
+      <span class="value">—</span>
+    </div>
+    <div class="row">
+      <span class="label">Booking Status</span>
+      <span class="status">Awaiting Firebase</span>
+    </div>
+    <div class="row">
+      <span class="label">Payment Status</span>
+      <span class="value">—</span>
+    </div>
+  </div>
+
+  <a class="btn" href="booking.html">BOOK NEW SERVICE</a>
+</main>
+
+<footer>
+  © 2026 SP POWERFIX | Electrician: MR SIDHU
+</footer>
+</body>
+</html>
